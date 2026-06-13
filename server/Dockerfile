@@ -1,11 +1,14 @@
 FROM node:20-bookworm-slim AS builder
 
+RUN apt-get update && apt-get install -y python3 python3-pip make g++ && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
 COPY . .
 RUN npm run build
+RUN npm prune --omit=dev
 
 FROM node:20-bookworm-slim
 
@@ -14,9 +17,8 @@ RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY package*.json ./
-# Install only production dependencies
-RUN npm install --omit=dev
 
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 
 # Create recordings directory
