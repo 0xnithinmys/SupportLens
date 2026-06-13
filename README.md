@@ -28,18 +28,18 @@ SupportLens is a proprietary, self-hosted WebRTC real-time video calling platfor
 ## 🏗 Architecture Diagram
 ```mermaid
 flowchart TD
-    Client[Customer/Agent Browser] -->|HTTPS / WSS| Nginx[Nginx Reverse Proxy]
+    Client["Customer/Agent Browser"] -->|HTTPS / WSS| Nginx["Nginx Reverse Proxy"]
     
     subgraph Server Infrastructure
-        Nginx -->|REST / WS| Node[Node.js Express & Socket.io]
-        Node -->|Internal| Mediasoup[Mediasoup C++ Workers (SFU)]
+        Nginx -->|REST / WS| Node["Node.js Express & Socket.io"]
+        Node -->|Internal| Mediasoup["Mediasoup C++ Workers (SFU)"]
         Client -->|RTP / RTCP| Mediasoup
     end
     
     subgraph Data Layer
-        Node <-->|Pub/Sub & Locks| Redis[(Redis)]
-        Node <-->|PostgreSQL| Supabase[(Supabase DB)]
-        Node -->|Uploads| S3[(AWS S3 / MinIO)]
+        Node <-->|Pub/Sub & Locks| Redis[("Redis")]
+        Node <-->|PostgreSQL| Supabase[("Supabase DB")]
+        Node -->|Uploads| S3[("AWS S3 / MinIO")]
     end
 ```
 
