@@ -91,6 +91,9 @@ interface ClientToServerEvents {
   'agent:stop_recording': (cb?: (data: { ok: boolean; error?: string }) => void) => void;
   'telemetry:media': (data: { rtt: number; jitter: number; packetLossFraction: number; timestamp: number }) => void;
   'chat:send': (data: { payload: string; isFile?: boolean }) => void;
+  'agent:end_session': (cb?: (data: { ok: boolean; error?: string }) => void) => void;
+  'agent:mute_all': (cb?: (data: { ok: boolean; error?: string }) => void) => void;
+  'agent:remove_participant': (data: { socketId: string }, cb?: (data: { ok: boolean; error?: string }) => void) => void;
 }
 
 interface TransportOptions {
