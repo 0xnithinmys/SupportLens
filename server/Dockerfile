@@ -1,9 +1,15 @@
 FROM node:20-bookworm-slim AS builder
 
-RUN apt-get update && apt-get install -y python3 python3-pip make g++ && rm -rf /var/lib/apt/lists/*
+# Build tools needed for mediasoup native compilation
+RUN apt-get update && apt-get install -y \
+    python3 python3-pip make g++ \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY package*.json ./
+
+# Tell mediasoup to skip native build and use prebuilt binary
+ENV MEDIASOUP_SKIP_WORKER_PREBUILT_DOWNLOAD=false
 RUN npm install
 
 COPY . .
@@ -23,6 +29,8 @@ COPY --from=builder /app/dist ./dist
 
 # Create recordings directory
 RUN mkdir -p recordings
+
+ENV NODE_ENV=production
 
 EXPOSE 4000
 CMD ["node", "dist/index.js"]
