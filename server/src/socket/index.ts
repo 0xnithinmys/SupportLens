@@ -99,7 +99,7 @@ interface ServerToClientEvents {
   // Room lifecycle
   'room:closed': () => void;
   'participant:joined': (data: { displayName: string; role: SocketRole; socketId: string }) => void;
-  'participant:left': (data: { displayName: string; role: SocketRole }) => void;
+  'participant:left': (data: { displayName: string; role: SocketRole; socketId: string }) => void;
 
   // Admin controls
   'room:force_mute': () => void;
