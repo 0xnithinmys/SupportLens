@@ -176,8 +176,53 @@ router.get(
   },
 );
 
+// ── POST /api/sessions/:id/recording ─────────────────────────────────────────
+// Saves a client-side uploaded recording URL to the session
+router.post(
+  '/:id/recording',
+  requireRole('AGENT', 'ADMIN'),
+  async (req: Request, res: Response): Promise<void> => {
+    const id = String(req.params.id);
+    const { url } = req.body as { url?: string };
+    const agentId = res.locals.user.sub;
+    const role = res.locals.user.role;
+
+    if (!url || typeof url !== 'string') {
+      res.status(400).json({ error: 'Valid URL is required' });
+      return;
+    }
+
+    try {
+      const { rows } = await query<Session>(
+        `SELECT * FROM sessions WHERE id = $1`,
+        [id],
+      );
+      const session = rows[0];
+
+      if (!session) {
+        res.status(404).json({ error: 'Session not found' });
+        return;
+      }
+
+      if (role === 'AGENT' && session.agent_id !== agentId) {
+        res.status(403).json({ error: 'Forbidden' });
+        return;
+      }
+
+      await query(
+        `UPDATE sessions SET recording_url = $2 WHERE id = $1`,
+        [id, url],
+      );
+
+      res.json({ message: 'Recording URL saved', url });
+    } catch (err) {
+      console.error('[Sessions] Save recording error:', (err as Error).message);
+      res.status(500).json({ error: 'Failed to save recording URL' });
+    }
+  },
+);
+
 // ── POST /api/sessions/:id/end ───────────────────────────────────────────────
-// Terminates a session: updates DB, broadcasts room:closed to all sockets.
 router.post(
   '/:id/end',
   requireRole('AGENT', 'ADMIN'),

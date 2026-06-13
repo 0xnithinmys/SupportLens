@@ -1,82 +1,74 @@
-# SupportLens
+# SupportLens - Real-Time Video Support Platform
 
-A real-time video support platform for customer service agents. Agents can create sessions, invite customers via a shareable link, conduct live video calls, record meetings, and manage participants — all from a single dashboard.
+SupportLens is a proprietary, self-hosted WebRTC real-time video calling platform engineered specifically for customer support workflows. It integrates session management, real-time media routing, synchronous chat, role-based access control, and advanced telemetry—completely independent of third-party video APIs.
 
-## Features
+## 🚀 Deployed URLs
+- **Frontend & Backend (Nginx Reverse Proxy):** `http://16.171.22.54`
 
-- 🎥 **Real-time Video Calls** — WebRTC via mediasoup SFU for low-latency, multi-party video
-- 🎙️ **Audio Mixing** — All participant audio merged into one clear recording track
-- 📹 **Session Recording** — Server-side recording with grid video layout and S3 upload
-- 💬 **In-Call Chat** — Real-time text chat and file sharing during calls
-- 🔴 **Admin Controls** — Mute all, remove participants, end call for everyone
-- 📊 **Dashboard** — Manage sessions, view recordings, track participants
-- 📡 **Observability** — Prometheus metrics + Grafana dashboards
+## 🔐 Credentials
+| Role | Email | Password |
+|---|---|---|
+| **Admin** | `admin@atomquest.dev` | `Admin@123` |
+| **Agent** | `agent@atomquest.dev` | `Agent@123` |
 
-## Tech Stack
+## 🛠 Tech Stack
+### **Frontend**
+- **Framework:** React 18 with Vite (TypeScript / TSX)
+- **Styling:** TailwindCSS, `shadcn/ui`, `lucide-react` icons
+- **State Management & WebRTC:** `socket.io-client`, `mediasoup-client`
 
-| Layer | Technology |
-|---|---|
-| Frontend | React, TypeScript, Vite, TailwindCSS, shadcn/ui |
-| Backend | Node.js, Express, Socket.io, TypeScript |
-| WebRTC | mediasoup (SFU) |
-| Recording | FFmpeg (server-side compositing) |
-| Database | PostgreSQL (Supabase) |
-| Queue | BullMQ + Redis |
-| Storage | AWS S3 |
-| Proxy | Nginx |
-| Monitoring | Prometheus + Grafana |
+### **Backend & Infrastructure**
+- **Server:** Node.js (TypeScript), Express, `socket.io`
+- **WebRTC SFU:** `mediasoup` (C++ workers orchestrated by Node.js)
+- **Database:** PostgreSQL (hosted on Supabase)
+- **State & Signaling:** Redis (Pub/Sub for scaling, BullMQ)
+- **Storage:** AWS S3 (for files and recording storage)
+- **Deployment:** Docker & Docker Compose, Nginx (Reverse Proxy)
 
-## Getting Started (Local Development)
-
-### Prerequisites
-- Node.js 20+
-- Redis (running on port 6379)
-- FFmpeg installed on your system
-- PostgreSQL database
-
-### 1. Clone the repo
-```bash
-git clone https://github.com/0xnithinmys/SupportLens.git
-cd SupportLens
+## 🏗 Architecture Diagram
+```mermaid
+flowchart TD
+    Client[Customer/Agent Browser] -->|HTTPS / WSS| Nginx[Nginx Reverse Proxy]
+    
+    subaxis Server Infrastructure
+        Nginx -->|REST / WS| Node[Node.js Express & Socket.io]
+        Node -->|Internal| Mediasoup[Mediasoup C++ Workers (SFU)]
+        Client -->|RTP / RTCP| Mediasoup
+    end
+    
+    subaxis Data Layer
+        Node <-->|Pub/Sub & Locks| Redis[(Redis)]
+        Node <-->|PostgreSQL| Supabase[(Supabase DB)]
+        Node -->|Uploads| S3[(AWS S3 / MinIO)]
+    end
 ```
 
-### 2. Install dependencies
-```bash
-npm install
-```
+## 🎯 Core Features (Status)
 
-### 3. Configure the server
-Copy the example env file and fill in your values:
-```bash
-cp server/.env.production.example server/.env
-```
+| Feature | Status | Description |
+|---|---|---|
+| 1. Project Setup & Infrastructure | ✅ Completed | Monorepo setup with Node, React, Postgres, Redis, and Mediasoup. |
+| 2. Database Schema & Migrations | ✅ Completed | Tables for users, sessions, participants, chat. UUID keys. |
+| 3. Authentication & RBAC | ✅ Completed | JWT + Argon2 auth. Socket middleware for strict RBAC. |
+| 4. Session Lifecycle Management | ✅ Completed | Invite link generation. Paginated history with durations. |
+| 5. Distributed Signaling with Redis | ✅ Completed | Redis Pub/Sub integration for horizontal scaling without split-brain. |
+| 6. Mediasoup SFU — Media Engine | ✅ Completed | H.264/VP8 support. Round-robin worker selection. |
+| 7. TURN/STUN Server (Coturn) | ❌ Pending | External STUN/TURN server deployment for strict NATs. |
+| 8. Frontend — Agent Dashboard | ✅ Completed | Session history list and generation of new customer invite links. |
+| 9. Frontend — Customer Pre-Flight | ✅ Completed | Ephemeral tokens (no-login) with hardware checks and waiting room. |
+| 10. Frontend — Active Call Interface | ✅ Completed | Dynamic Media Grid, Control Dock, and collapsible Auxiliary Drawer. |
+| 11. Real-Time Chat & Persistence | ✅ Completed | DB-backed real-time chat broadcast. |
+| 12. File Sharing | ✅ Completed | Multipart upload to S3 without Node.js memory buffering. |
+| 13. Server-Side Recording | ✅ Completed | (Now migrated to Client-Side for accuracy—see Extra Features below) |
+| 14. Reconnect Handling | ✅ Completed | Connection state recovery and `pc.restartIce()` automation. |
+| 15. Zombie Session Cleanup | ✅ Completed | Server-side ping/pong to teardown abandoned sessions. |
+| 16. Distributed Mutex for Joins | ✅ Completed | Redis atomic locks to prevent race conditions on invite links. |
+| 17. Telemetry & Observability | ✅ Completed | RTT, jitter, and packet loss monitoring via Prometheus/Grafana. |
+| 18. Admin Dashboard | ✅ Completed | Global session view with force-terminate functionality. |
+| 19. Security & TLS Hardening | ✅ Completed | Nginx proxy with restricted routing and socket authorization. |
+| 20. End-to-End Deployment | ✅ Completed | Containerized via Docker Compose to AWS EC2 instance. |
 
-Edit `server/.env` with your database URL, JWT secret, S3 credentials, etc.
-
-> **Important:** Set `MEDIASOUP_ANNOUNCED_IP` to your machine's local IP (e.g. `192.168.x.x`) for WebRTC to work correctly.
-
-### 4. Run the development servers
-```bash
-# Start the backend
-npm run dev --workspace=server
-
-# Start the frontend (in a second terminal)
-npm run dev --workspace=client
-```
-
-The app will be available at `http://localhost:5173`.
-
-## Production Deployment
-
-See `server/.env.production.example` for all required environment variables.
-
-Key production requirements:
-- Set `MEDIASOUP_ANNOUNCED_IP` to your server's **public IP**
-- Set `CLIENT_URL` to your production domain (e.g. `https://yourdomain.com`)
-- Install FFmpeg on the server: `sudo apt install -y ffmpeg`
-- Open firewall ports: **TCP 443** (HTTPS) and **UDP 10000–10500** (WebRTC)
-- Run with Docker Compose (Redis, Nginx, Certbot included)
-
-## License
-
-MIT
+## ⭐ Extra / Enhanced Features
+- **Client-Side High-Fidelity Recording:** Replaced complex backend FFmpeg muxing with a precise frontend `MediaRecorder` pipeline. It accurately records exactly what the agent sees and hears (including the custom layout, screen sharing, and remote participant audio) directly into a `.webm` file and automatically uploads it to S3.
+- **Admin Force Terminate & Agent "End Session":** Dedicated capabilities for Admins and Agents to forcibly tear down all active WebRTC transports, clean up sockets, and correctly update the session history immediately.
+- **Dynamic S3 Resolution:** Fail-safe mechanisms fall back dynamically based on S3 API connectivity.

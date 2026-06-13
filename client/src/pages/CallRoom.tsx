@@ -263,6 +263,7 @@ function CallRoom(): React.ReactElement {
   const [cameraEnabled, setCameraEnabled] = useState(true);
   const [recording, setRecording] = useState(false);
   const [recordingBusy, setRecordingBusy] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const socketRef = useRef<CallSocket | null>(null);
   const deviceRef = useRef<Device | null>(null);
   const sendTransportRef = useRef<Transport | null>(null);
@@ -605,8 +606,10 @@ function CallRoom(): React.ReactElement {
       });
 
       socket.on('recording:status', (status) => {
-        setRecording(status.active);
-        setError(null);
+        // Only update local state if we aren't the ones actively recording
+        if (!mediaRecorderRef.current) {
+          setRecording(status.active);
+        }
       });
 
       socket.on('room:force_mute', () => {
@@ -749,18 +752,58 @@ function CallRoom(): React.ReactElement {
     setMessageIsFile(false);
   }
 
-  function toggleRecording(): void {
-    if (!user || (user.role !== 'AGENT' && user.role !== 'ADMIN')) return;
-    setRecordingBusy(true);
-    const eventName = recording ? 'agent:stop_recording' : 'agent:start_recording';
-    socketRef.current?.emit(eventName, (response) => {
+  async function toggleRecording(): Promise<void> {
+    if (recording && mediaRecorderRef.current) {
+      setRecordingBusy(true);
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current = null;
+      setRecording(false);
+      return;
+    }
+
+    try {
+      setRecordingBusy(true);
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: { displaySurface: 'browser' },
+        audio: true
+      });
+
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+      const chunks: Blob[] = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        stream.getTracks().forEach((track) => track.stop());
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        
+        try {
+          const formData = new FormData();
+          formData.append('file', blob, `recording-${sessionId}.webm`);
+          const response = await api.upload<{ url: string }>(`/files/upload?sessionId=${sessionId}`, formData);
+          
+          if (response.url) {
+            await api.post(`/sessions/${sessionId}/recording`, { url: response.url });
+          }
+        } catch (err) {
+          console.error('[Recording] Upload failed:', err);
+          setError(err instanceof Error ? err.message : 'Failed to upload recording');
+        } finally {
+          setRecordingBusy(false);
+        }
+      };
+
+      mediaRecorder.start();
+      mediaRecorderRef.current = mediaRecorder;
+      setRecording(true);
       setRecordingBusy(false);
-      if (!response.ok) {
-        setError(response.error ?? 'Recording action failed');
-        return;
-      }
-      setRecording(!recording);
-    });
+    } catch (err) {
+      console.error('[Recording] Failed to start:', err);
+      setError('Screen recording permission denied. Please select a tab with "Share audio" enabled.');
+      setRecordingBusy(false);
+    }
   }
 
   function endCallForAll(): void {

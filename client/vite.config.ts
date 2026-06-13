@@ -14,13 +14,15 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:4000',
+        target: 'https://16.171.22.54',
         changeOrigin: true,
+        secure: false,
       },
       '/socket.io': {
-        target: 'http://127.0.0.1:4000',
+        target: 'https://16.171.22.54',
         ws: true,
         changeOrigin: true,
+        secure: false,
       },
     },
   },

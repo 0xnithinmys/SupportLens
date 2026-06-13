@@ -66,6 +66,18 @@ function Dashboard(): React.ReactElement {
   const [inviteUrl, setInviteUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  async function endSession(sessionId: string): Promise<void> {
+    const confirmed = window.confirm(`End session ${sessionId}?`);
+    if (!confirmed) return;
+
+    try {
+      await api.post(`/sessions/${sessionId}/end`);
+      await loadHistory(page);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to end session');
+    }
+  }
+
   const activeCount = useMemo(
     () => sessions.filter((session) => session.status === 'ACTIVE' || session.status === 'WAITING').length,
     [sessions],
@@ -281,6 +293,11 @@ function Dashboard(): React.ReactElement {
                             Call
                           </a>
                         </Button>
+                        {session.status !== 'ENDED' ? (
+                          <Button variant="destructive" size="sm" onClick={() => void endSession(session.id)}>
+                            End Session
+                          </Button>
+                        ) : null}
                       </div>
                     </article>
                   );
