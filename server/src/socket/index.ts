@@ -86,6 +86,7 @@ async function teardownRoom(sessionId: string, reason: string): Promise<void> {
       s.emit('participant:left', {
         displayName: (s.data as SocketData).displayName,
         role: (s.data as SocketData).role,
+        socketId: s.id,
       });
       s.disconnect(true);
     });
