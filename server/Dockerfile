@@ -8,8 +8,6 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 COPY package*.json ./
 
-# Tell mediasoup to skip native build and use prebuilt binary
-ENV MEDIASOUP_SKIP_WORKER_PREBUILT_DOWNLOAD=false
 RUN npm install
 
 COPY . .
