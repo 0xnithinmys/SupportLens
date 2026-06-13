@@ -1,0 +1,192 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: 210 17% 7%;
+  --foreground: 210 20% 96%;
+  --card: 215 18% 11%;
+  --card-foreground: 210 20% 96%;
+  --popover: 215 18% 11%;
+  --popover-foreground: 210 20% 96%;
+  --primary: 168 66% 57%;
+  --primary-foreground: 180 30% 6%;
+  --secondary: 215 18% 18%;
+  --secondary-foreground: 210 20% 96%;
+  --muted: 214 16% 18%;
+  --muted-foreground: 215 14% 66%;
+  --accent: 214 16% 18%;
+  --accent-foreground: 210 20% 96%;
+  --destructive: 0 78% 64%;
+  --border: 215 15% 22%;
+  --input: 215 15% 22%;
+  --ring: 168 66% 57%;
+  --chart-1: 168 66% 57%;
+  --chart-2: 153 60% 62%;
+  --chart-3: 212 72% 65%;
+  --chart-4: 42 94% 69%;
+  --chart-5: 251 91% 76%;
+  --radius: 0.5rem;
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  background:
+    linear-gradient(115deg, hsl(var(--primary) / 0.1), transparent 34%),
+    linear-gradient(245deg, hsl(var(--chart-4) / 0.08), transparent 38%),
+    hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+@keyframes breathe {
+  0%, 100% {
+    opacity: 0.62;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes float-a {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(26px, -18px, 0); }
+}
+
+@keyframes float-b {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(-22px, 24px, 0); }
+}
+
+@keyframes float-c {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(18px, 22px, 0); }
+}
+
+@keyframes drift {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-2deg); }
+  50% { transform: translate3d(0, -14px, 0) rotate(2deg); }
+}
+
+@keyframes sweep {
+  0%, 100% { transform: translate3d(22%, 0, 0) rotate(12deg); }
+  50% { transform: translate3d(-105%, 0, 0) rotate(12deg); }
+}
+
+@keyframes soft-pulse {
+  0%, 100% { box-shadow: 0 16px 38px hsl(var(--primary) / 0.18); }
+  50% { box-shadow: 0 20px 48px hsl(var(--chart-4) / 0.22); }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.animate-breathe {
+  animation: breathe 4.8s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.animate-float-a {
+  animation: float-a 7s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-float-b {
+  animation: float-b 8s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-float-c {
+  animation: float-c 7.4s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-drift {
+  animation: drift 6s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-drift-reverse {
+  animation: drift 6s ease-in-out infinite reverse;
+  will-change: transform;
+}
+
+.animate-sweep {
+  animation: sweep 7s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-soft-pulse {
+  animation: soft-pulse 2.8s ease-in-out infinite;
+}
+
+.animate-rise-in {
+  animation: rise-in 360ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
+}

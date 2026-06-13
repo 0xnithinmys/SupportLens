@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment secrets — NEVER commit these
+.env
+.env.local
+.env.*.local
+server/.env
+
+# Recordings (local dev artifacts)
+server/recordings/
+
+# Debug / one-off scripts
+server/scripts/fix-recording.js
+server/scripts/fix-recording-url.ts
+
+# Design documents / internal notes
+Real-Time Video Support Platform Design.md
+task.md
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Vite cache
+.vite/

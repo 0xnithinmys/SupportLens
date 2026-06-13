@@ -1,0 +1,31 @@
+{
+  "title": "AtomQuest Media Quality",
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Active Sessions",
+      "targets": [{ "expr": "atomquest_active_sessions" }],
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 }
+    },
+    {
+      "type": "stat",
+      "title": "Active Participants",
+      "targets": [{ "expr": "atomquest_active_participants" }],
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Average RTT",
+      "targets": [{ "expr": "atomquest_media_rtt_seconds" }],
+      "gridPos": { "x": 0, "y": 4, "w": 8, "h": 8 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Packet Loss Fraction",
+      "targets": [{ "expr": "atomquest_media_packet_loss_fraction" }],
+      "gridPos": { "x": 8, "y": 4, "w": 8, "h": 8 }
+    }
+  ]
+}
